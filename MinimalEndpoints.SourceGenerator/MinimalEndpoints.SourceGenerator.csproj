@@ -15,7 +15,7 @@
 		<PackageId>Nocpad.AspNetCore.MinimalEndpoints.SourceGenerator</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>AspNetCore Minimal Endpoints source generator</Title>
-		<Description>The source generator will the marker interfaces and attributes from the Nocpad.AspNetCore.MinimalEndpoints package to automatically generate the required code in order to map map the endpoints.</Description>
+		<Description>The source generator will use the marker interfaces and attributes from the Nocpad.AspNetCore.MinimalEndpoints package to automatically generate the required code in order to map map the endpoints.</Description>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<PackageTags>Web API;Minimal API;.NET;ASP.NET Core</PackageTags>
