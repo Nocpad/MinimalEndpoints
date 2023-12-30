@@ -14,10 +14,10 @@ This package contains marker interfaces used by the `Nocpad.AspNetCore.MinimalEn
 
 Add this line on `Program.cs` to map the discovered endpoints.
 ```c# 
-app.MapNocpad.AspNetCore.MinimalEndpoints();
+app.MapMinimalEndpoints();
 ```
 
->**`The MapNocpad.AspNetCore.MinimalEndpoints() extension method is under the root namespace so you may need to add the using statement.`**
+>**`The MapMinimalEndpoints() extension method is under the root namespace so you may need to add the using statement.`**
 
 ---
 ## Endpoint groups examples  {#group-examples}

@@ -5,12 +5,12 @@
 		<LangVersion>Latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<RootNamespace>Nocpad.AspNetCore.Nocpad.AspNetCore.MinimalEndpoints</RootNamespace>
+		<RootNamespace>Nocpad.AspNetCore.MinimalEndpoints</RootNamespace>
 
-		<PackageId>Nocpad.AspNetCore.Nocpad.AspNetCore.MinimalEndpoints</PackageId>
+		<PackageId>Nocpad.AspNetCore.MinimalEndpoints</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Title>AspNetCore Nocpad.AspNetCore.MinimalEndpoints</Title>
-		<Description>The package contains marker interfaces and attributes that can be used by the Nocpad.AspNetCore.Nocpad.AspNetCore.MinimalEndpoints.SourceGenerator package to automatically wire up and map the endpoints.</Description>
+		<Title>Nocpad.AspNetCore.MinimalEndpoints</Title>
+		<Description>The package contains marker interfaces and attributes that can be used by the Nocpad.AspNetCore.MinimalEndpoints.SourceGenerator package to automatically wire up and map the endpoints.</Description>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<ProduceReferenceAssembly>true</ProduceReferenceAssembly>
