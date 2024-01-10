@@ -20,13 +20,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapMinimalEndpoints();
+//app.MapMinimalEndpoints();
 
 app.Run();
 
-internal sealed class GetWeather : IEndpoint<WeatherGroup>
+internal sealed class GetWeather
 {
-    [Get("forecast")]
+    
     internal static WeatherForecast[] Get()
     {
         var forecast = Enumerable.Range(1, 5).Select(index =>

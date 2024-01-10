@@ -1,3 +1,11 @@
-﻿namespace Nocpad.AspNetCore.MinimalEndpoints;
+﻿using System;
 
-public sealed class GetAttribute(string template, string method = "GET") : HttpMethodAttribute(template, method) { }
+namespace Nocpad.AspNetCore.MinimalEndpoints;
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+public sealed class GetAttribute(string template) : Attribute
+{
+    public bool RequireAuthorization { get; set; }
+
+    public string[]? Policies { get; set; }
+}

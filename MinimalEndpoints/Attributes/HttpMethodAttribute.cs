@@ -1,4 +1,6 @@
-﻿namespace Nocpad.AspNetCore.MinimalEndpoints;
+﻿using System;
+
+namespace Nocpad.AspNetCore.MinimalEndpoints;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class HttpMethodAttribute : Attribute

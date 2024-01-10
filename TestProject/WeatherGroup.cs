@@ -1,7 +1,8 @@
-﻿using Nocpad.AspNetCore.MinimalEndpoints;
+﻿namespace TestProject;
 
-namespace TestProject;
-internal sealed class WeatherGroup : IEndpointGroup
+[Nocpad.AspNetCore.MinimalEndpoints.Endpoint(Active = false)]
+
+internal sealed class WeatherGroup
 {
     public static string Name => "weather";
     public static string Route => "api/weather";
