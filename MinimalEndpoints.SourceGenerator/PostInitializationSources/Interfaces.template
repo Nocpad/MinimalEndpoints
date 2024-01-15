@@ -1,0 +1,36 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+
+namespace Nocpad.AspNetCore.MinimalEndpoints;
+
+
+public interface IEndpoint { }
+
+
+public interface IEndpoint<TEndpointGroup> : IEndpoint where TEndpointGroup : IEndpointGroup { }
+
+
+
+public interface IEndpointConfiguration : IEndpoint
+{
+    abstract static void Configure(RouteHandlerBuilder builder);
+}
+
+
+public interface IEndpointConfiguration<TEndpointGroup> : IEndpointConfiguration where TEndpointGroup : IEndpointGroup { }
+
+
+
+
+public interface IEndpointGroup
+{
+    abstract static string Name { get; }
+
+    abstract static string Route { get; }
+}
+
+
+public interface IEndpointGroupConfiguration : IEndpointGroup
+{
+    abstract static void Configure(RouteGroupBuilder group);
+}

@@ -1,5 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using MinimalEndpoints.SourceGenerator.Models;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -10,55 +12,64 @@ namespace MinimalEndpoints.SourceGenerator;
 [Generator]
 public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 {
+    private static string _namespace = "";
+    private const string EndpointAttribute = "Nocpad.AspNetCore.MinimalEndpoints.EndpointAttribute";
+
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
 #if DEBUG
-        //if (!Debugger.IsAttached)
-        //{
-        //    Debugger.Launch();
-        //}
+        if (!Debugger.IsAttached)
+        {
+            Debugger.Launch();
+        }
 #endif
 
         Debug.WriteLine("Initialize code generator");
 
         RegisterPostInitialization(context);
 
-        //IncrementalValuesProvider<ClassDeclarationSyntax> enumDeclarations = context.SyntaxProvider
-        //    .CreateSyntaxProvider(
-        //        predicate: static (s, _) => IsSyntaxTargetForGeneration(s), // select enums with attributes
-        //        transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx)) // sect the enum with the [EnumExtensions] attribute
-        //    .Where(static m => m is not null)!; // filter out attributed enums that we don't care about
+        IncrementalValuesProvider<Endpoint> endpoints = context.SyntaxProvider.ForAttributeWithMetadataName(
+            EndpointAttribute,
+            predicate: (_, _) => true,
+            transform: GetSemanticTargetForGeneration
+        ).Where(static m => m is not null)!;
 
-        //// Combine the selected enums with the `Compilation`
-        //IncrementalValueProvider<(Compilation, ImmutableArray<EnumDeclarationSyntax>)> compilationAndEnums
-        //    = context.CompilationProvider.Combine(enumDeclarations.Collect());
-        //context.RegisterPostInitializationOutput
+        //context.RegisterSourceOutput(classDeclarations, static (spc, source) => ...(source, spc));
     }
 
-    //static bool IsSyntaxTargetForGeneration(SyntaxNode node)
-    //{
+    static bool IsSyntaxTargetForGeneration(SyntaxNode node) => node is ClassDeclarationSyntax c && c.AttributeLists.Count > 0;
 
-    //    if (node is not ClassDeclarationSyntax classSyntax)
-    //    {
-    //        return false;
-    //    }
-    //    else
-    //    {
-    //        var root = classSyntax.SyntaxTree.GetRoot();
-    //        root.get
-    //    }
 
-    //}
+    static Endpoint? GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext context, CancellationToken ct)
+    {
+        if (context.TargetSymbol is not INamedTypeSymbol classSymbol)
+        {
+            // nothing to do if this type isn't available
+            return null;
+        }
 
-    // Generate the source using the compilation and enums
-    //context.RegisterSourceOutput(compilationAndEnums,
-    //        static (spc, source) => Execute(source.Item1, source.Item2, spc));
+        ct.ThrowIfCancellationRequested();
+
+        var classMembers = classSymbol.GetMembers();
+
+        foreach (var member in classMembers)
+        {
+            if (member is not IMethodSymbol)
+            {
+                continue;
+            }
+
+        }
+
+
+        return null;
+    }
+
 
 
     private static void RegisterPostInitialization(IncrementalGeneratorInitializationContext context)
     {
-        //context.AnalyzerConfigOptionsProvider.Select(e => e.GlobalOptions).
-
         context.RegisterPostInitializationOutput(async ctx =>
         {
             var httpAttriteTempate = await GetSourceFileTemplate("HttpMethodAttribute.template");
@@ -69,6 +80,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                 ctx.AddSource($"{verb}Attribute.g.cs", SourceText.From(httpAttriteTempate.Replace("{{METHOD}}", verb), Encoding.UTF8));
             }
 
+            ctx.AddSource("EndpointInterfaces.g.cs", SourceText.From(await GetSourceFileTemplate("Interfaces.template"), Encoding.UTF8));
             ctx.AddSource("EndpointAttribute.g.cs", SourceText.From(await GetSourceFileTemplate("EndpointAttribute.template"), Encoding.UTF8));
         });
     }
@@ -84,9 +96,9 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         using Stream stream = assembly.GetManifestResourceStream(resourcePath);
         using StreamReader reader = new(stream);
 
-        var contrent = await reader.ReadToEndAsync();
+        var content = await reader.ReadToEndAsync();
 
         // TODO: allow overriding the namespace of each source file
-        return contrent.Replace("{{GeneratorNamespace}}", "Nocpad.AspNetCore.MinimalEndpoints");
+        return content.Replace("{{GeneratorNamespace}}", "Nocpad.AspNetCore.MinimalEndpoints");
     }
 }

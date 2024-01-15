@@ -30,10 +30,10 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
-
 	<ItemGroup>
 		<EmbeddedResource Include="PostInitializationSources\EndpointAttribute.template" />
 		<EmbeddedResource Include="PostInitializationSources\HttpMethodAttribute.template" />
+		<EmbeddedResource Include="PostInitializationSources\Interfaces.template" />
 	</ItemGroup>
 
 	<ItemGroup>
