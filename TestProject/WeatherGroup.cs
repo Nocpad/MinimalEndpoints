@@ -1,8 +1,20 @@
-﻿namespace TestProject;
+﻿using Microsoft.AspNetCore.Builder;
+using Nocpad.AspNetCore.MinimalEndpoints;
+using System;
 
-[Nocpad.AspNetCore.MinimalEndpoints.Endpoint(Active = false)]
+namespace TestProject;
 
-internal sealed class WeatherGroup
+[Endpoint(Active = false)]
+
+internal sealed class WeatherGroup : IEndpointGroup
+{
+    public static string Name => "weather";
+    public static string Route => "api/weather";
+}
+
+
+[Endpoint<WeatherGroup>]
+internal sealed class WeatherGroup2
 {
     public static string Name => "weather";
     public static string Route => "api/weather";

@@ -1,4 +1,9 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Nocpad.AspNetCore.MinimalEndpoints;
+using System;
+using System.Linq;
 using TestProject;
 
 
@@ -20,13 +25,38 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.MapMinimalEndpoints();
+app.MapMinimalEndpoints();
 
 app.Run();
 
+[Endpoint]
 internal sealed class GetWeather
 {
-    
+    [Get("tests sa ")]
+    internal static WeatherForecast[] Get()
+    {
+        var forecast = Enumerable.Range(1, 5).Select(index =>
+       new WeatherForecast
+       (
+           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+           Random.Shared.Next(-20, 55),
+           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
+       ))
+       .ToArray();
+        return forecast;
+    }
+}
+
+
+[Endpoint<WeatherGroup>]
+internal sealed class GetWeatherX : IEndpointConfiguration
+{
+    public static void Configure(RouteHandlerBuilder builder)
+    {
+        throw new NotImplementedException();
+    }
+
+    [Get("tests sa ")]
     internal static WeatherForecast[] Get()
     {
         var forecast = Enumerable.Range(1, 5).Select(index =>
