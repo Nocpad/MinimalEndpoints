@@ -21,7 +21,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
 #if DEBUG
-        Debugger.Launch();
+        //Debugger.Launch();
 #endif
 
         RegisterPostInitialization(context);
@@ -40,15 +40,8 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
         var compilation = context.CompilationProvider;
 
-        context.RegisterSourceOutput(compilation.Combine(endpoints.Collect()), static (spc, source) => Execute(source, spc, "MapIndividualEndpoints", "Individual"));
-
-        context.RegisterSourceOutput(compilation.Combine(endpointsWithGroup.Collect()), static (spc, source) => Execute(source, spc, "MapEndpointGroups", "Groups"));
-
-        //context.RegisterImplementationSourceOutput(compilation.Combine(endpoints.Collect()), (spc, content) =>
-        //{
-        //    //spc.AddSource()
-        //    // do the full, expensive generation
-        //});
+        context.RegisterImplementationSourceOutput(compilation.Combine(endpointsWithGroup.Collect()), static (spc, source) => Execute(source, spc, "MapIndividualEndpoints", "Individual"));
+        context.RegisterImplementationSourceOutput(compilation.Combine(endpointsWithGroup.Collect()), static (spc, source) => Execute(source, spc, "MapEndpointGroups", "Groups"));
     }
 
 
@@ -66,7 +59,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
             public static partial class MapMinimalEndpointsExtensions
             {
-                public static partial void {{implementingMethod}}(this WebApplication app)
+                public static partial WebApplication {{implementingMethod}}(this WebApplication app)
                 {
   
             """);
@@ -95,6 +88,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         }
 
         sb.Append("""
+                    return app;
                 }
             }
             """);
@@ -122,7 +116,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     }
 
 
-    static Endpoint? GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext context, CancellationToken ct)
+    internal static Endpoint? GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext context, CancellationToken ct)
     {
         if (context.TargetSymbol is not INamedTypeSymbol classSymbol)
         {
@@ -183,7 +177,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         return null;
     }
 
-    static T GetNamedArgumentValueOrDefault<T>(AttributeData attribute, string name)
+    internal static T GetNamedArgumentValueOrDefault<T>(AttributeData attribute, string name)
     {
         var value = attribute.NamedArguments.FirstOrDefault(e => e.Key == name);
         return value is { }
@@ -191,7 +185,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             : default;
     }
 
-    static T[]? GetNamedArgumentValuesOrDefault<T>(AttributeData attribute, string name)
+    internal static T[]? GetNamedArgumentValuesOrDefault<T>(AttributeData attribute, string name)
     {
         var value = attribute.NamedArguments.FirstOrDefault(e => e.Key == name);
         return value is { Value.Kind: TypedConstantKind.Array, Value.IsNull: false }
@@ -200,7 +194,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     }
 
 
-    static T? GetAttributeNamedArgument<T>(AttributeSyntax attribute, string name)
+    internal static T? GetAttributeNamedArgument<T>(AttributeSyntax attribute, string name)
     {
         var argument = attribute.ArgumentList?.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name.Identifier.Text == name);
         return argument?.Expression is LiteralExpressionSyntax literalExpression
@@ -209,9 +203,9 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     }
 
 
-    static Group? TryGetGroup(AttributeSyntax endpointAttribute, GeneratorAttributeSyntaxContext context)
+    internal static EndpointGroup? TryGetGroup(AttributeSyntax endpointAttribute, GeneratorAttributeSyntaxContext context)
     {
-        Group? endpointGroup = null;
+        EndpointGroup? endpointGroup = null;
 
         if (endpointAttribute.Name is GenericNameSyntax genericNameSyntax)
         {
@@ -225,14 +219,14 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
             var groupMembers = typeInfo.GetMembers();
 
-            endpointGroup.Name = TryGetGroupPropertyValue(root, context.SemanticModel.Compilation, groupMembers, nameof(Group.Name))!;
-            endpointGroup.Route = TryGetGroupPropertyValue(root, context.SemanticModel.Compilation, groupMembers, nameof(Group.Route))!;
+            endpointGroup.Name = TryGetGroupPropertyValue(root, context.SemanticModel.Compilation, groupMembers, nameof(EndpointGroup.Name))!;
+            endpointGroup.Route = TryGetGroupPropertyValue(root, context.SemanticModel.Compilation, groupMembers, nameof(EndpointGroup.Route))!;
         }
 
         return endpointGroup;
     }
 
-    private static string? TryGetGroupPropertyValue(SyntaxNode node, Compilation compilation, ImmutableArray<ISymbol> groupMembers, string propertyName)
+    internal static string? TryGetGroupPropertyValue(SyntaxNode node, Compilation compilation, ImmutableArray<ISymbol> groupMembers, string propertyName)
     {
         foreach (var m in groupMembers)
         {
@@ -264,7 +258,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     }
 
 
-    private static T? GetInitializerPropertyValue<T>(Compilation compilation, PropertyDeclarationSyntax? propertyDeclaration, ExpressionSyntax expression)
+    internal static T? GetInitializerPropertyValue<T>(Compilation compilation, PropertyDeclarationSyntax? propertyDeclaration, ExpressionSyntax expression)
     {
         // Evaluate the initializer expression
         var initializerValue = compilation.GetSemanticModel(propertyDeclaration.SyntaxTree).GetConstantValue(expression);
@@ -281,7 +275,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
     }
 
 
-    private static void RegisterPostInitialization(IncrementalGeneratorInitializationContext context)
+    internal static void RegisterPostInitialization(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(async ctx =>
         {
@@ -304,22 +298,21 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                 {
                     public static WebApplication MapMinimalEndpoints(this WebApplication app)
                     {
-                        MapIndividualEndpoints(app);
-                        MapEndpointGroups(app);
-
-                        return app;
+                        return app
+                            .MapIndividualEndpoints()
+                            .MapEndpointGroups();
                     }
 
-                    public static partial void MapIndividualEndpoints(this WebApplication app);
+                    public static partial WebApplication MapIndividualEndpoints(this WebApplication app);
 
-                    public static partial void MapEndpointGroups(this WebApplication app);
+                    public static partial WebApplication MapEndpointGroups(this WebApplication app);
                 } 
                 """);
         });
     }
 
 
-    private static async Task<string> GetSourceFileTemplate(string resourceName, string outputNamespace)
+    internal static async Task<string> GetSourceFileTemplate(string resourceName, string outputNamespace)
     {
         var assembly = Assembly.GetExecutingAssembly();
         string resourcePath = assembly
@@ -334,91 +327,4 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         // TODO: allow overriding the namespace of each source file
         return content.Replace("{{GeneratorNamespace}}", outputNamespace ?? "Nocpad.AspNetCore.MinimalEndpoints");
     }
-}
-
-
-record Endpoint
-{
-    public EndpointConfig Config { get; set; } = null!;
-
-    public string Template { get; set; } = string.Empty;
-
-    public string EndpointMethod { get; set; } = string.Empty;
-
-    public string HttpMethod { get; set; } = string.Empty;
-
-    public EndpointNamespace Namespace { get; set; } = null!;
-
-    public bool HasConfiguration { get; set; }
-
-    public Group? Group { get; set; }
-
-    public void AppenEndpointString(StringBuilder sb, string endpointParent, string variableName)
-    {
-        sb.Append($$"""
-                var {{variableName}} = {{endpointParent}}.MapMethods("{{Template}}", new[] {"{{HttpMethod}}"}, {{Namespace}}.{{EndpointMethod}}){{Config}};
-
-        """);
-
-
-        if (HasConfiguration)
-        {
-            sb.Append($$"""
-                        {{Namespace}}.Configure({{variableName}});
-
-                """);
-        }
-    }
-}
-
-record EndpointConfig
-{
-    public bool Active { get; set; }
-
-    public bool? RequireAuthorization { get; set; }
-
-    public string[]? Policies { get; set; }
-
-
-    public override string ToString()
-    {
-        string result = string.Empty;
-
-        if (RequireAuthorization is not null)
-        {
-            result += RequireAuthorization.Value
-                ? ".RequireAuthorization()"
-                : ".AllowAnonymous()";
-        }
-
-        if (Policies is not null)
-        {
-            result += $$""".RequireAuthorization("{{string.Join("\", \"", Policies)}}")""";
-        }
-
-        return result;
-    }
-}
-
-
-record Group
-{
-    public EndpointNamespace Namespace { get; set; }
-
-    public string Name { get; set; }
-
-    public string Route { get; set; }
-}
-
-
-record EndpointNamespace
-{
-    public EndpointNamespace(INamespaceSymbol @namespace, string groupName)
-    {
-        Value = $"{(@namespace.IsGlobalNamespace ? "global::" : @namespace.ToDisplayString() + ".")}{groupName}";
-    }
-
-    public string Value { get; private set; }
-
-    public override string ToString() => Value;
 }
