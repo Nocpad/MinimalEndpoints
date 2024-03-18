@@ -32,9 +32,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="PostInitializationSources\EndpointAttribute.template" />
-		<EmbeddedResource Include="PostInitializationSources\HttpMethodAttribute.template" />
-		<EmbeddedResource Include="PostInitializationSources\Interfaces.template" />
+	  <None Remove="bin\Debug\netstandard2.0\\MinimalEndpoints.SourceGenerator.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
