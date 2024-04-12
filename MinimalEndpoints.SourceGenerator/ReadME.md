@@ -1,8 +1,15 @@
 
 # About
-A source generator that can be used along with the `Nocpad.AspNetCore.MinimalEndpoints` package to automatically generate the boilerplate code required to map endpoints.
+A source generator that can be used to automatically generate the boilerplate code required to map endpoints.
 
 # Examples
+
+### Program.cs
+
+```c#
+app.MapMinimalEndpoints();
+```
+
 
 ### Endpoint associated with a group 
 ```c#
@@ -18,15 +25,14 @@ internal sealed class WeatherEndpointGroup : IEndpointGroupConfiguration
 }
 
 
-internal sealed class GetWeather : IEndpointConfiguration<WeatherGroup>
+[Endpoint<WeatherEndpointGroup>]
+internal sealed class GetWeather : IEndpoint
 {
-    internal static void Configure(RouteHandlerBuilder builder)
-    {
-        // endpoint configuration
-    }
-
     [Get("forecast")]
-    internal static WeatherForecast[] Get()
+    // [Validate<Request>, Get("forecast")] 
+    // [Validate<Request>, Get("forecast", Policies = ["policy name"])
+    // [Validate<Request>, Get("forecast", Policies = ["policy name", "second policy"], RequireAuthorization = true/false)]
+    internal static WeatherForecast[] Get(Request request)
     {
        // implementation...
     }
@@ -37,8 +43,23 @@ internal sealed class GetWeather : IEndpointConfiguration<WeatherGroup>
 ### Simple endpoint without a group/configuration
 
 ```c#
-internal sealed class Upload : IEndpoint
+[Endpoint]
+internal sealed class Upload
 {
+    [Post("/file-upload")]
+    public static IResult Handle(IFormFile file) => Results.Ok(new { file.FileName, file.ContentType, file.Length });
+}
+```
+
+```c#
+[Endpoint]
+internal sealed class Upload : IEndpointConfiguration
+{
+    public static void Configure(RouteHandlerBuilder builder)
+    {
+        // endpoint configuration
+    }
+
     [Post("/file-upload")]
     public static IResult Handle(IFormFile file) => Results.Ok(new { file.FileName, file.ContentType, file.Length });
 }

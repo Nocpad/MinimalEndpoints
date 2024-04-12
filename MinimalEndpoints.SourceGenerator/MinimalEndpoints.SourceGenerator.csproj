@@ -15,15 +15,15 @@
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 
-		<PackageId>Nocpad.AspNetCore.MinimalEndpoints.SourceGenerator</PackageId>
+		<PackageId>Nocpad.AspNetCore.MinimalEndpoints</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>AspNetCore Minimal Endpoints source generator</Title>
-		<Description>The source generator will use the marker interfaces and attributes from the Nocpad.AspNetCore.MinimalEndpoints package to automatically generate the required code in order to map map the endpoints.</Description>
+		<Description>The source generator will use marker interfaces and attributes to automatically generate the required code in order to map the endpoints.</Description>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<PackageTags>Web API;Minimal API;.NET;ASP.NET Core</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Version>1.0.0.0</Version>
+		<Version>2.0.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<Authors>Stavros S</Authors>
 		<RepositoryUrl>https://github.com/Nocpad/MinimalEndpoints</RepositoryUrl>
@@ -32,7 +32,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="bin\Debug\netstandard2.0\\MinimalEndpoints.SourceGenerator.dll" />
+		<None Remove="bin\Debug\netstandard2.0\\MinimalEndpoints.SourceGenerator.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
