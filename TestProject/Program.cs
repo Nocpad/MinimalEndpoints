@@ -32,70 +32,67 @@ app.MapMinimalEndpoints();
 app.Run();
 
 
-//[Endpoint]
-//internal sealed class GetWeather
-//{
-//    [Validate<GetWeather>, Get("tests sa ")]
-//    internal static WeatherForecast[] Get()
-//    {
-//        var forecast = Enumerable.Range(1, 5).Select(index =>
-//       new WeatherForecast
-//       (
-//           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//           Random.Shared.Next(-20, 55),
-//           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
-//       ))
-//       .ToArray();
-//        return forecast;
-//    }
-//}
+[Endpoint]
+internal sealed class GetWeather
+{
+    [Validate<GetWeather>, Get("tests sa ")]
+    internal static WeatherForecast[] Get()
+    {
+        var forecast = Enumerable.Range(1, 5).Select(index =>
+       new WeatherForecast
+       (
+           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+           Random.Shared.Next(-20, 55),
+           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
+       ))
+       .ToArray();
+        return forecast;
+    }
+}
 //app.MapMethods("tests sa ", new[] { "GET" }, global::GetWeatherX1.Get).RequireAuthorization("a", "s")
 
-//[Endpoint<WeatherGroup>]
-//internal sealed class GetWeatherX : IEndpointConfiguration
-//{
-//    public static void Configure(RouteHandlerBuilder builder)
-//    {
-//        throw new NotImplementedException();
-//    }
+[Endpoint<WeatherGroup2>]
+internal sealed class GetWeatherX : IEndpointConfiguration
+{
+    public static void Configure(RouteHandlerBuilder builder)
+    {
+        throw new NotImplementedException();
+    }
 
-//    [Validate<GetWeatherX>, Get("tests sa ", Policies = ["1", "22dsad"], RequireAuthorization = true)]
-//    internal static WeatherForecast[] Get()
-//    {
-//        var forecast = Enumerable.Range(1, 5).Select(index =>
-//       new WeatherForecast
-//       (
-//           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//           Random.Shared.Next(-20, 55),
-//           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
-//       ))
-//       .ToArray();
-//        return forecast;
-//    }
-//}
+    [Validate<GetWeatherX>, Get("", Policies = ["1", "22dsad"], RequireAuthorization = true)]
+    internal static WeatherForecast[] Get()
+    {
+        var forecast = Enumerable.Range(1, 5)
+            .Select(index => new WeatherForecast
+            (
+                DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Random.Shared.Next(-20, 55),
+                WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
+            ))
+            .ToArray();
+        return forecast;
+    }
+}
 
-//[Endpoint<WeatherGroup>]
-//internal sealed class GetWeatherX1 : IEndpointConfiguration
-//{
-//    public static void Configure(RouteHandlerBuilder builder)
-//    {
-//        throw new NotImplementedException();
-//    }
+[Endpoint<WeatherGroup>]
+internal sealed class GetWeatherX1 : IEndpointConfiguration
+{
+    public static void Configure(RouteHandlerBuilder builder) { }
 
-//    [Validate<GetWeatherX>, Get("tests sa ")]
-//    internal static WeatherForecast[] Get()
-//    {
-//        var forecast = Enumerable.Range(1, 5).Select(index =>
-//       new WeatherForecast
-//       (
-//           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//           Random.Shared.Next(-20, 55),
-//           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
-//       ))
-//       .ToArray();
-//        return forecast;
-//    }
-//}
+    [Get("weather-get")]
+    internal static WeatherForecast[] Get()
+    {
+        var forecast = Enumerable.Range(1, 5).Select(index =>
+       new WeatherForecast
+       (
+           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+           Random.Shared.Next(-20, 55),
+           WeatherForecast.Summaries[Random.Shared.Next(WeatherForecast.Summaries.Length)]
+       ))
+       .ToArray();
+        return forecast;
+    }
+}
 
 
 
@@ -110,14 +107,14 @@ internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary
 }
 
 
-[Endpoint]
-internal sealed class Upload : IEndpointConfiguration
-{
-    public static void Configure(RouteHandlerBuilder builder)
-    {
-        throw new NotImplementedException();
-    }
+//[Endpoint]
+//internal sealed class Upload : IEndpointConfiguration
+//{
+//    public static void Configure(RouteHandlerBuilder builder)
+//    {
+//        throw new NotImplementedException();
+//    }
 
-    [Post("/file-upload")]
-    public static IResult Handle(IFormFile file) => Results.Ok(new { file.FileName, file.ContentType, file.Length });
-}
+//    [Post("/file-upload")]
+//    public static IResult Handle(IFormFile file) => Results.Ok(new { file.FileName, file.ContentType, file.Length });
+//}
