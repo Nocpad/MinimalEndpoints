@@ -124,6 +124,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             using System;
             using System.Linq;
             using System.Threading.Tasks;
+            using System.Diagnostics.CodeAnalysis;
 
             namespace Nocpad.AspNetCore.MinimalEndpoints;
 
@@ -508,7 +509,7 @@ internal static class Templates
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
         public sealed class {{method}}Attribute : Attribute
         {
-            public {{method}}Attribute(string template) => Template = template;
+            public {{method}}Attribute([StringSyntax("Route")] string template) => Template = template;
 
             public bool RequireAuthorization { get; set; }
 
