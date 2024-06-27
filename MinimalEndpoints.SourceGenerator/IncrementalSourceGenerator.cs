@@ -299,7 +299,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         foreach (var className in endpointAsServices)
         {
             sb.Append("        ")
-                .AppendLine($"services.AddScoped<{className}>();");
+                .AppendLine($"services.AddTransient<{className}>();");
         }
 
 
