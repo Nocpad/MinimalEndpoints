@@ -1,10 +1,13 @@
-﻿namespace MinimalEndpoints.SourceGenerator;
+﻿
+using Microsoft.CodeAnalysis;
+
+namespace MinimalEndpoints.SourceGenerator;
 
 internal sealed record EndpointConfig
 {
     public bool Active { get; set; }
 
-    public EndpointNamespace? Validator { get; set; }
+    public ITypeSymbol? Validator { get; set; }
 
     public bool? RequireAuthorization { get; set; }
 

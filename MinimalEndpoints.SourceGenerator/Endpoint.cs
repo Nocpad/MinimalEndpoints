@@ -7,7 +7,7 @@ internal sealed record Endpoint
 {
     public bool RequireServiceRegistration => !Method.IsStatic;
 
-    public string ClassName { get; set; } = null!;
+    public INamedTypeSymbol ClassSymbol { get; set; } = null!;
 
     public bool IsStaticClass { get; set; }
 
@@ -18,8 +18,6 @@ internal sealed record Endpoint
     public string Template { get; set; } = string.Empty;
 
     public string HttpMethod { get; set; } = string.Empty;
-
-    public EndpointNamespace Namespace { get; set; } = null!;
 
     public bool HasConfiguration { get; set; }
 
@@ -35,7 +33,7 @@ internal sealed record Endpoint
 
         if (Method.IsStatic is true)
         {
-            sb.Append($".MapMethods(\"{Template}\", new[] {{\"{HttpMethod}\"}}, {Method.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})");
+            sb.Append($".MapMethods(\"{Template}\", new[] {{\"{HttpMethod}\"}}, {ClassSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{Method.Name})");
         }
         else
         {
@@ -47,7 +45,7 @@ internal sealed record Endpoint
 
 
             sb.Append($$"""
-                .MapMethods("{{Template}}", new[] {"{{HttpMethod}}"}, {{asyncKeyword}} ({{handlersSignature}} {{ClassName}} handler) =>
+                .MapMethods("{{Template}}", new[] {"{{HttpMethod}}"}, {{asyncKeyword}} ({{handlersSignature}} {{ClassSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} handler) =>
                         {
                             {{HandlerCall()}}
                         })
@@ -60,7 +58,7 @@ internal sealed record Endpoint
             sb.AppendLine()
                 .Append("        ")
                 .Append("        ")
-                .Append($".AddEndpointFilter<AbstractValidationFilter<{Config.Validator}>>()");
+                .Append($".AddEndpointFilter<AbstractValidationFilter<{Config.Validator.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}>>()");
         }
 
         if (Config.RequireAuthorization is not null)
@@ -85,7 +83,7 @@ internal sealed record Endpoint
         {
             sb.AppendLine()
                 .Append("        ")
-                .Append($"{Namespace}.{ConfigureMethodName}({variableName});");
+                .Append($"{ClassSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{ConfigureMethodName}({variableName});");
         }
 
         sb.AppendLine();

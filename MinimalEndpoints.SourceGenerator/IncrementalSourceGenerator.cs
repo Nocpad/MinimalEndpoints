@@ -291,10 +291,11 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             """);
 
         sb.AppendLine();
+
         var endpointAsServices = endpoints
             .Where(e => e.RequireServiceRegistration)
-            .Select(e => e.ClassName)
-            .ToImmutableHashSet();
+            .Select(e => e.ClassSymbol)
+            .ToImmutableHashSet(SymbolEqualityComparer.Default);
 
         foreach (var className in endpointAsServices)
         {
@@ -381,9 +382,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                     Active = GetAttributeNamedArgument<bool?>(endpointAttribute, nameof(EndpointConfig.Active)) != false,
                     RequireAuthorization = GetNamedArgumentValueOrDefault<bool?>(attribute, nameof(EndpointConfig.RequireAuthorization)),
                     Policies = GetNamedArgumentValuesOrDefault<string>(attribute, nameof(EndpointConfig.Policies)),
-                    Validator = validateAttribute is null
-                        ? null
-                        : new(validateAttribute.AttributeClass!.TypeArguments[0].ContainingNamespace, validateAttribute.AttributeClass.TypeArguments[0].Name)
+                    Validator = validateAttribute?.AttributeClass.TypeArguments[0]
                 };
 
                 var configureUsingAttribute = attributes.FirstOrDefault(e => $"{e.AttributeClass!.ContainingNamespace.ToDisplayString()}.{e.AttributeClass.Name}" == ConfigureUsingAttribute);
@@ -391,13 +390,12 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                 endpoints.Add(new Endpoint
                 {
                     IsStaticClass = classSymbol.IsStatic,
-                    ClassName = classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    ClassSymbol = classSymbol,
                     Config = config,
                     HasConfiguration = configureUsingAttribute is not null || classSymbol.AllInterfaces.Any(e => $"{e.ContainingNamespace.ToDisplayString()}.{e.Name}" == EndpointWithConfiguration),
                     ConfigureMethodName = configureUsingAttribute is not null ? configureUsingAttribute.ConstructorArguments[0].Value?.ToString() ?? "Configure" : "Configure",
                     Method = method,
                     HttpMethod = httpMethod,
-                    Namespace = new(method.ContainingNamespace, classSymbol.Name),
                     Template = attribute.ConstructorArguments[0].Value?.ToString()!,
                     Group = TryGetGroup(endpointAttribute, context),
                 });
