@@ -23,7 +23,7 @@
 		<DebugSymbols>true</DebugSymbols>
 		<PackageTags>Web API;Minimal API;.NET;ASP.NET Core</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Version>2.1.0</Version>
+		<Version>2.1.2</Version>
 		<RepositoryType>git</RepositoryType>
 		<Authors>Stavros S</Authors>
 		<RepositoryUrl>https://github.com/Nocpad/MinimalEndpoints</RepositoryUrl>
