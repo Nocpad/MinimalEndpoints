@@ -79,32 +79,15 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                 {
                     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
                     {
-                        var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();
+                        var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>() ?? throw new Exception($"Cannot find registered validator of type '{typeof(T).FullName}'");
 
-                        if (validator is not null)
-                        {
-                            var entity = context.Arguments.OfType<T>().FirstOrDefault();
+                        var arg = context.Arguments.OfType<T>().FirstOrDefault() ?? throw new Exception($"Could not find argument of type '{typeof(T).FullName}'.");
 
-                            return entity switch
-                            {
-                                null => Results.Problem("Could not find type to validate."),
-                                _ => await ValidateEntity(context, next, validator, entity)
-                            };
-                        }
+                        var validation = await validator.ValidateAsync(arg);
 
-                        return await next(context);
-                    }
-
-
-                    private static async ValueTask<object?> ValidateEntity(EndpointFilterInvocationContext context, EndpointFilterDelegate next, IValidator<T>? validator, T? entity)
-                    {
-                        var validation = await validator.ValidateAsync(entity);
-                        if (validation.IsValid)
-                        {
-                            return await next(context);
-                        }
-
-                        return Results.ValidationProblem(validation.ToDictionary());
+                        return validation.IsValid
+                            ? await next(context)
+                            : Results.ValidationProblem(validation.ToDictionary());
                     }
                 }
                 """);
@@ -236,9 +219,11 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             using Microsoft.Extensions.DependencyInjection;
             
             namespace Nocpad.AspNetCore.MinimalEndpoints;
+            #nullable disable
 
             public static partial class MapMinimalEndpointsExtensions
             {
+                [System.Diagnostics.StackTraceHidden]
                 public static partial WebApplication Map{{implementingMethod}}(this WebApplication app)
                 {
   
@@ -300,7 +285,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         foreach (var className in endpointAsServices)
         {
             sb.Append("        ")
-                .AppendLine($"services.AddTransient<{className}>();");
+                .AppendLine($"services.AddScoped<{className}>();");
         }
 
 
@@ -364,6 +349,8 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                     "Nocpad.AspNetCore.MinimalEndpoints.GetAttribute" => "GET",
                     "Nocpad.AspNetCore.MinimalEndpoints.PostAttribute" => "POST",
                     "Nocpad.AspNetCore.MinimalEndpoints.PutAttribute" => "PUT",
+                    "Nocpad.AspNetCore.MinimalEndpoints.HeadAttribute" => "HEAD",
+                    "Nocpad.AspNetCore.MinimalEndpoints.PatchAttribute" => "PATCH",
                     _ => null
                 };
 
@@ -510,7 +497,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(async ctx =>
         {
             var httpAttriteTempate = await GetSourceFileTemplate("HttpMethodAttribute.template", null);
-            string[] verbs = ["Get", "Post", "Put", "Delete"];
+            string[] verbs = ["Get", "Post", "Put", "Delete", "Patch", "Head"];
 
             foreach (var verb in verbs)
             {

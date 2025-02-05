@@ -39,13 +39,23 @@ internal sealed record Endpoint
         {
             var asyncKeyword = Method.ReturnType.ToDisplayString().StartsWith(TaskBaseType) ? "async" : null;
 
-            var handlersSignature = Method.Parameters.Length is > 0
-                ? string.Join(", ", Method.Parameters.Select(p => $"{p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {p.Name}")) + ", " // also include the comma 
-                : string.Empty;
+            var handlersSignature = string.Empty;
+
+            foreach (var arg in Method.Parameters)
+            {
+                var attributes = arg.GetAttributes();
+
+                foreach (var attribute in attributes)
+                {
+                    handlersSignature += $"[{attribute.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}] ";
+                }
+
+                handlersSignature += $"{arg.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {arg.Name}" + ", ";
+            }
 
 
             sb.Append($$"""
-                .MapMethods("{{Template}}", new[] {"{{HttpMethod}}"}, {{asyncKeyword}} ({{handlersSignature}} {{ClassSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} handler) =>
+                .MapMethods("{{Template}}", new[] {"{{HttpMethod}}"}, {{asyncKeyword}} ({{handlersSignature}} [global::Microsoft.AspNetCore.Mvc.FromServices] {{ClassSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} handler) =>
                         {
                             {{HandlerCall()}}
                         })

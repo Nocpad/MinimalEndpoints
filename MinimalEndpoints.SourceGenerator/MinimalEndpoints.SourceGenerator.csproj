@@ -9,6 +9,7 @@
 
 	<PropertyGroup>
 		<IsRoslynComponent>true</IsRoslynComponent>
+		<DevelopmentDependency>true</DevelopmentDependency>
 
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
@@ -23,7 +24,7 @@
 		<DebugSymbols>true</DebugSymbols>
 		<PackageTags>Web API;Minimal API;.NET;ASP.NET Core</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Version>2.1.2</Version>
+		<Version>3.0.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<Authors>Stavros S</Authors>
 		<RepositoryUrl>https://github.com/Nocpad/MinimalEndpoints</RepositoryUrl>
@@ -32,7 +33,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="bin\Debug\netstandard2.0\\MinimalEndpoints.SourceGenerator.dll" />
+	  <None Remove="bin\Debug\netstandard2.0\\MinimalEndpoints.SourceGenerator.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
