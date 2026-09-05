@@ -5,6 +5,8 @@ namespace MinimalEndpoints.SourceGenerator;
 
 internal sealed record Endpoint
 {
+    public string? Name { get; set; }
+
     public bool RequireServiceRegistration => !Method.IsStatic;
 
     public INamedTypeSymbol ClassSymbol { get; set; } = null!;
@@ -62,6 +64,10 @@ internal sealed record Endpoint
                 """);
         }
 
+        sb.AppendLine()
+            .Append("        ")
+            .Append("        ")
+            .Append($".WithName(\"{Name}\")");
 
         if (Config.Validator is { })
         {

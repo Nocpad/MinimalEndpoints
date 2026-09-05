@@ -183,7 +183,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
             """);
 
-        HashSet<string> verbs = new(["Get", "Post", "Put", "Delete"], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> verbs = new(["Get", "Post", "Put", "Delete", "Query", "Head", "Patch"], StringComparer.OrdinalIgnoreCase);
 
         foreach (var verb in verbs)
         {
@@ -351,6 +351,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                     "Nocpad.AspNetCore.MinimalEndpoints.PutAttribute" => "PUT",
                     "Nocpad.AspNetCore.MinimalEndpoints.HeadAttribute" => "HEAD",
                     "Nocpad.AspNetCore.MinimalEndpoints.PatchAttribute" => "PATCH",
+                    "Nocpad.AspNetCore.MinimalEndpoints.QueryAttribute" => "QUERY",
                     _ => null
                 };
 
@@ -374,8 +375,12 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
                 var configureUsingAttribute = attributes.FirstOrDefault(e => $"{e.AttributeClass!.ContainingNamespace.ToDisplayString()}.{e.AttributeClass.Name}" == ConfigureUsingAttribute);
 
+                // if Name attribute is present, then use that as the endpoint name, otherwise use the method name
+                var nameAttribute = attributes.FirstOrDefault(e => e.AttributeClass?.MetadataName == "NameAttribute");
+
                 endpoints.Add(new Endpoint
                 {
+                    Name = nameAttribute is not null ? nameAttribute.ConstructorArguments[0].Value?.ToString() : method.Name.Replace("Async", ""),
                     IsStaticClass = classSymbol.IsStatic,
                     ClassSymbol = classSymbol,
                     Config = config,
