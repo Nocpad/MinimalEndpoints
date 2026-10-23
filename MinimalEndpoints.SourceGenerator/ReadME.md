@@ -13,6 +13,22 @@ It uses attributes and marker interfaces to discover endpoints at compile time a
 - Supports HTTP verb attributes: `[Get]`, `[Post]`, `[Put]`, `[Delete]`, `[Patch]`, `[Head]`, `[Query]`
 - Supports optional authorization metadata (`RequireAuthorization`, `Policies`)
 - Supports optional FluentValidation integration with `[Validate<T>]`
+- Generates everything `internal`, so several assemblies of one application can each use the generator
+
+## Generated code is internal (since 4.0)
+
+Every generated type (the attributes, the marker interfaces, `MapMinimalEndpointsExtensions` and `MinimalEndpointsServiceCollectionExtensions`)
+is `internal`: each assembly that uses the generator gets its own copy, and an application can reference a library that uses it while using it
+too. Before 4.0 they were `public`, which made the second assembly's copies collide with the first's (CS0433, CS0121).
+
+A library that wants its endpoints mapped by another assembly exposes its own public method that calls its `MapMinimalEndpoints()`:
+
+```csharp
+public static class MyLibraryEndpoints
+{
+    public static IEndpointRouteBuilder MapMyLibrary(this IEndpointRouteBuilder routes) => routes.MapMinimalEndpoints();
+}
+```
 
 ## Installation
 

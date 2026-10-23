@@ -74,10 +74,10 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
                 #nullable enable
 
                 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
-                public sealed class ValidateAttribute<T> : Attribute { }
+                internal sealed class ValidateAttribute<T> : Attribute { }
 
                 [System.Diagnostics.StackTraceHidden]
-                public sealed class AbstractValidationFilter<T> : IEndpointFilter
+                internal sealed class AbstractValidationFilter<T> : IEndpointFilter
                 {
                     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
                     {
@@ -117,36 +117,36 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             #nullable enable
 
             [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-            public sealed class EndpointAttribute : Attribute
+            internal sealed class EndpointAttribute : Attribute
             {
                 public bool Active { get; set; }
             }
 
             [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-            public sealed class EndpointAttribute<TGroup> : Attribute where TGroup : IEndpointGroup
+            internal sealed class EndpointAttribute<TGroup> : Attribute where TGroup : IEndpointGroup
             {
                 public bool Active { get; set; }
             }
 
-            public interface IEndpointConfiguration
+            internal interface IEndpointConfiguration
             {
                 abstract static void Configure(RouteHandlerBuilder builder);
             }
 
-            public interface IEndpointGroup
+            internal interface IEndpointGroup
             {
                 abstract static string Name { get; }
 
                 abstract static string Route { get; }
             }
 
-            public interface IEndpointGroupConfiguration : IEndpointGroup
+            internal interface IEndpointGroupConfiguration : IEndpointGroup
             {
                 abstract static void Configure(RouteGroupBuilder group);
             }
 
 
-            public static partial class MapMinimalEndpointsExtensions
+            internal static partial class MapMinimalEndpointsExtensions
             {
                 public static T MapMinimalEndpoints<T>(this T route) where T : Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
                 {
@@ -161,7 +161,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             }
 
 
-            public static partial class MinimalEndpointsServiceCollectionExtensions
+            internal static partial class MinimalEndpointsServiceCollectionExtensions
             {
                 public static IServiceCollection AddMinimalEndpoints(this IServiceCollection services)
                 {
@@ -177,7 +177,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
 
             [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-            public sealed class ConfigureUsingAttribute : Attribute
+            internal sealed class ConfigureUsingAttribute : Attribute
             {
                 public ConfigureUsingAttribute(string methodName) => MethodName = methodName;
 
@@ -224,7 +224,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
             namespace Nocpad.AspNetCore.MinimalEndpoints;
             #nullable disable
 
-            public static partial class MapMinimalEndpointsExtensions
+            internal static partial class MapMinimalEndpointsExtensions
             {
                 [System.Diagnostics.StackTraceHidden]
                 public static partial T Map{{implementingMethod}}<T>(this T route) where T : Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
@@ -272,7 +272,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
 
         sb.Append($$"""
-            public static partial class MinimalEndpointsServiceCollectionExtensions
+            internal static partial class MinimalEndpointsServiceCollectionExtensions
             {
                 public static partial IServiceCollection Add{{implementingMethod}}(this IServiceCollection services)
                 {                   
@@ -521,7 +521,7 @@ public sealed class IncrementalSourceGenerator : IIncrementalGenerator
 
                 #nullable enable
 
-                public static partial class MapMinimalEndpointsExtensions
+                internal static partial class MapMinimalEndpointsExtensions
                 {
                     public static T MapMinimalEndpoints<T>(this T route) where T : Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
                     {
@@ -562,7 +562,7 @@ internal static class Templates
 {
     internal static string HttpMethodAttribute(string method) => $$"""
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-        public sealed class {{method}}Attribute : Attribute
+        internal sealed class {{method}}Attribute : Attribute
         {
             public {{method}}Attribute([StringSyntax("Route")] string template) => Template = template;
 
